@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0b131e" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <title>قدرة لتجارة السيارات - Kadra</title>
+  <link href="https://googleapis.com" rel="stylesheet">
+  <style>
+    :root {
+      --bg-main: #0b131e;
+      --bg-card: #131d2b;
+      --bg-input: #192536;
+      --border: #223247;
+      --primary: #1890d5;
+      --primary-hover: #147ab5;
+      --text-main: #f1f5f9;
+      --text-muted: #8b9bb4;
+      --green-bg: rgba(16, 185, 129, 0.12);
+      --green-border: rgba(16, 185, 129, 0.35);
+      --green-text: #10b981;
+      --red-bg: rgba(239, 68, 68, 0.12);
+      --red-border: rgba(239, 68, 68, 0.35);
+      --red-text: #ef4444;
+      --blue-bg: rgba(24, 144, 213, 0.12);
+      --blue-border: rgba(24, 144, 213, 0.35);
+      --amber-text: #f59e0b;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Cairo', sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background-color: var(--bg-main); color: var(--text-main); padding-bottom: 85px; min-height: 100vh; }
+    
+    /* Splash Screen */
+    #splash {
+      position: fixed; inset: 0; background: var(--bg-main); z-index: 9999;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      transition: opacity 0.4s ease;
+    }
+    .logo-box {
+      width: 110px; height: 110px; background: #111b29; border-radius: 28px;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4); border: 1px solid var(--border);
+    }
+
+    /* PIN Lock Screen */
+    #pin-screen {
+      position: fixed; inset: 0; background: var(--bg-main); z-index: 9000;
+      display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px;
+    }
+    .pin-dots { display: flex; gap: 15px; margin: 25px 0; }
+    .pin-dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--primary); }
+    .pin-dot.filled { background: var(--primary); }
+    .pin-pad { display: grid; grid-template-columns: repeat(3, 75px); gap: 15px; }
+    .pin-btn {
+      height: 75px; border-radius: 50%; background: var(--bg-card); border: 1px solid var(--border);
+      color: var(--text-main); font-size: 24px; font-weight: 700; cursor: pointer;
+    }
+    .pin-btn:active { background: var(--primary); }
+
+    /* Container & Header */
+    .container { max-width: 520px; margin: 0 auto; padding: 18px 16px; }
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand-icon {
+      width: 46px; height: 46px; background: #132235; border-radius: 14px;
+      display: flex; align-items: center; justify-content: center; color: var(--primary);
+    }
+    .brand h1 { font-size: 20px; font-weight: 800; line-height: 1.2; }
+    .brand p { font-size: 12px; color: var(--text-muted); }
+
+    /* Stats Cards */
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 18px; }
+    .stat-card {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px;
+      padding: 14px 10px; text-align: center;
+    }
+    .stat-num { font-size: 22px; font-weight: 800; margin-bottom: 2px; }
+    .stat-label { font-size: 12px; color: var(--text-muted); }
+
+    .finance-card { border-radius: 16px; padding: 12px 10px; text-align: right; border: 1px solid; }
+    .f-income { background: var(--green-bg); border-color: var(--green-border); }
+    .f-income .f-val { color: var(--green-text); }
+    .f-expense { background: var(--red-bg); border-color: var(--red-border); }
+    .f-expense .f-val { color: var(--red-text); }
+    .f-profit { background: var(--blue-bg); border-color: var(--blue-border); }
+    .f-profit .f-val { color: var(--primary); }
+    .f-title { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
+    .f-val { font-size: 16px; font-weight: 800; direction: ltr; text-align: right; }
+    .f-sub { font-size: 11px; color: var(--text-muted); direction: ltr; text-align: right; }
+
+    /* Search & Filter */
+    .search-box {
+      width: 100%; background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px;
+      padding: 12px 16px; color: var(--text-main); font-size: 14px; margin-bottom: 14px; outline: none;
+    }
+    .chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 16px; }
+    .chip {
+      padding: 7px 16px; border-radius: 20px; background: var(--bg-card); border: 1px solid var(--border);
+      color: var(--text-muted); font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap;
+    }
+    .chip.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+
+    /* Car List Card */
+    .car-card {
+      background: var(--bg-card); border: 1px solid var(--border); border-radius: 18px;
+      padding: 14px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;
+      cursor: pointer; transition: transform 0.15s;
+    }
+    .car-card:active { transform: scale(0.98); }
+    .car-info { display: flex; align-items: center; gap: 12px; }
+    .car-thumb {
+      width: 60px; height: 60px; border-radius: 14px; background: var(--bg-input);
+      display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0;
+    }
+    .car-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .car-title { font-size: 16px; font-weight: 700; }
+    .car-meta { font-size: 12px; color: var(--text-muted); margin: 2px 0; }
+    .badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; gap: 5px; }
+    .badge-avail { background: var(--green-bg); color: var(--green-text); border: 1px solid var(--green-border); }
+    .badge-rented { background: var(--blue-bg); color: var(--primary); border: 1px solid var(--blue-border); }
+    .badge-maint { background: rgba(245, 158, 11, 0.15); color: var(--amber-text); border: 1px solid rgba(245, 158, 11, 0.35); }
+
+    /* Floating Add Button */
+    .fab {
+      position: fixed; bottom: 82px; left: 50%; transform: translateX(-50%);
+      background: var(--primary); color: #fff; border: none; border-radius: 30px;
+      padding: 13px 28px; font-size: 15px; font-weight: 700; box-shadow: 0 8px 25px rgba(24, 144, 213, 0.4);
+      cursor: pointer; z-index: 100; display: flex; align-items: center; gap: 8px;
+    }
+
+    /* Bottom Navigation */
+    .bottom-nav {
+      position: fixed; bottom: 0; left: 0; right: 0; height: 68px;
+      background: #0e1724; border-top: 1px solid var(--border);
+      display: flex; justify-content: space-around; align-items: center; z-index: 200;
+    }
+    .nav-item {
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      color: var(--text-muted); font-size: 12px; font-weight: 600; cursor: pointer; flex: 1;
+    }
+    .nav-item.active { color: var(--primary); }
+
+    /* Modals & Forms */
+    .modal {
+      position: fixed; inset: 0; background: rgba(5, 10, 18, 0.85); z-index: 500;
+      display: none; align-items: flex-end; justify-content: center;
+    }
+    .modal.open { display: flex; }
+    .modal-content {
+      background: var(--bg-card); width: 100%; max-width: 520px; max-height: 92vh;
+      border-radius: 24px 24px 0 0; padding: 20px; overflow-y: auto; border-top: 1px solid var(--border);
+    }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+    .form-group { margin-bottom: 14px; }
+    .form-label { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 6px; font-weight: 600; }
+    .form-control {
+      width: 100%; background: var(--bg-input); border: 1px solid var(--border); border-radius: 12px;
+      padding: 11px 14px; color: var(--text-main); font-size: 14px; outline: none;
+    }
+    .form-control:focus { border-color: var(--primary); }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .btn {
+      width: 100%; padding: 13px; border-radius: 14px; border: none; font-size: 15px;
+      font-weight: 700; cursor: pointer; text-align: center;
+    }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-secondary { background: var(--bg-input); color: var(--text-main); border: 1px solid var(--border); }
+    .btn-danger { background: var(--red-bg); color: var(--red-text); border: 1px solid var(--red-border); }
+
+    /* Currency Toggle */
+    .curr-toggle { display: grid; grid-template-columns: 1fr 1fr; background: var(--bg-input); border-radius: 12px; padding: 4px; border: 1px solid var(--border); }
+    .curr-opt { text-align: center; padding: 8px; border-radius: 9px; font-size: 13px; font-weight: 700; cursor: pointer; color: var(--text-muted); }
+    .curr-opt.active { background: var(--primary); color: #fff; }
+
+    /* Chart Bars */
+    .chart-box { background: var(--bg-card); border: 1px solid var(--border); border-radius: 18px; padding: 16px; margin-bottom: 16px; }
+    .bars-wrap { display: flex; align-items: flex-end; justify-content: space-between; height: 150px; padding-top: 20px; border-bottom: 1px solid var(--border); gap: 4px; }
+    .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; height: 100%; justify-content: flex-end; cursor: pointer; }
+    .bar-pair { display: flex; gap: 2px; align-items: flex-end; width: 100%; justify-content: center; height: 100%; }
+    .bar-inc { width: 6px; background: var(--green-text); border-radius: 3px 3px 0 0; min-height: 2px; }
+    .bar-exp { width: 6px; background: var(--red-text); border-radius: 3px 3px 0 0; min-height: 2px; }
