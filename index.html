@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#0b131e" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <title>قدرة لتجارة السيارات - Kadra</title>
+  <style>
+    :root {
+      --bg-main: #0b131e; --bg-card: #131d2b; --bg-input: #192536; --border: #223247;
+      --primary: #1890d5; --text-main: #f1f5f9; --text-muted: #8b9bb4;
+      --green-bg: rgba(16, 185, 129, 0.12); --green-border: rgba(16, 185, 129, 0.35); --green-text: #10b981;
+      --red-bg: rgba(239, 68, 68, 0.12); --red-border: rgba(239, 68, 68, 0.35); --red-text: #ef4444;
+      --blue-bg: rgba(24, 144, 213, 0.12); --blue-border: rgba(24, 144, 213, 0.35); --amber-text: #f59e0b;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, -apple-system, sans-serif; -webkit-tap-highlight-color: transparent; }
+    body { background-color: var(--bg-main); color: var(--text-main); padding-bottom: 85px; min-height: 100vh; }
+    #splash { position: fixed; inset: 0; background: var(--bg-main); z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.4s ease; }
+    .logo-box { width: 110px; height: 110px; background: #111b29; border-radius: 28px; display: flex; align-items: center; justify-content: center; box-shadow: 0 10px 30px rgba(0,0,0,0.4); border: 1px solid var(--border); }
+    #pin-screen { position: fixed; inset: 0; background: var(--bg-main); z-index: 9000; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+    .pin-dots { display: flex; gap: 15px; margin: 25px 0; }
+    .pin-dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid var(--primary); }
+    .pin-dot.filled { background: var(--primary); }
+    .pin-pad { display: grid; grid-template-columns: repeat(3, 75px); gap: 15px; }
+    .pin-btn { height: 75px; border-radius: 50%; background: var(--bg-card); border: 1px solid var(--border); color: var(--text-main); font-size: 24px; font-weight: 700; cursor: pointer; }
+    .pin-btn:active { background: var(--primary); }
+    .container { max-width: 520px; margin: 0 auto; padding: 18px 16px; }
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand-icon { width: 46px; height: 46px; background: #132235; border-radius: 14px; display: flex; align-items: center; justify-content: center; color: var(--primary); }
+    .brand h1 { font-size: 20px; font-weight: 800; line-height: 1.2; }
+    .brand p { font-size: 12px; color: var(--text-muted); }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 18px; }
+    .stat-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 16px; padding: 14px 10px; text-align: center; }
+    .stat-num { font-size: 22px; font-weight: 800; margin-bottom: 2px; }
+    .stat-label { font-size: 12px; color: var(--text-muted); }
+    .finance-card { border-radius: 16px; padding: 12px 10px; text-align: right; border: 1px solid; }
+    .f-income { background: var(--green-bg); border-color: var(--green-border); } .f-income .f-val { color: var(--green-text); }
+    .f-expense { background: var(--red-bg); border-color: var(--red-border); } .f-expense .f-val { color: var(--red-text); }
+    .f-profit { background: var(--blue-bg); border-color: var(--blue-border); } .f-profit .f-val { color: var(--primary); }
+    .f-title { font-size: 12px; color: var(--text-muted); margin-bottom: 4px; }
+    .f-val { font-size: 16px; font-weight: 800; direction: ltr; text-align: right; }
+    .f-sub { font-size: 11px; color: var(--text-muted); direction: ltr; text-align: right; }
+    .search-box { width: 100%; background: var(--bg-card); border: 1px solid var(--border); border-radius: 14px; padding: 12px 16px; color: var(--text-main); font-size: 14px; margin-bottom: 14px; outline: none; }
+    .chips { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; margin-bottom: 16px; }
+    .chip { padding: 7px 16px; border-radius: 20px; background: var(--bg-card); border: 1px solid var(--border); color: var(--text-muted); font-size: 13px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+    .chip.active { background: var(--primary); color: #fff; border-color: var(--primary); }
+    .car-card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 18px; padding: 14px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between; cursor: pointer; }
+    .car-info { display: flex; align-items: center; gap: 12px; }
+    .car-thumb { width: 60px; height: 60px; border-radius: 14px; background: var(--bg-input); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .car-title { font-size: 16px; font-weight: 700; }
+    .car-meta { font-size: 12px; color: var(--text-muted); margin: 2px 0; }
+    .badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; gap: 5px; }
+    .badge-avail { background: var(--green-bg); color: var(--green-text); border: 1px solid var(--green-border); }
+    .badge-rented { background: var(--blue-bg); color: var(--primary); border: 1px solid var(--blue-border); }
+    .badge-maint { background: rgba(245, 158, 11, 0.15); color: var(--amber-text); border: 1px solid rgba(245, 158, 11, 0.35); }
+    .fab { position: fixed; bottom: 82px; left: 50%; transform: translateX(-50%); background: var(--primary); color: #fff; border: none; border-radius: 30px; padding: 13px 28px; font-size: 15px; font-weight: 700; box-shadow: 0 8px 25px rgba(24, 144, 213, 0.4); cursor: pointer; z-index: 100; }
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 68px; background: #0e1724; border-top: 1px solid var(--border); display: flex; justify-content: space-around; align-items: center; z-index: 200; }
+    .nav-item { display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-muted); font-size: 12px; font-weight: 600; cursor: pointer; flex: 1; }
+    .nav-item.active { color: var(--primary); }
+    .modal { position: fixed; inset: 0; background: rgba(5, 10, 18, 0.85); z-index: 500; display: none; align-items: flex-end; justify-content: center; }
+    .modal.open { display: flex; }
+    .modal-content { background: var(--bg-card); width: 100%; max-width: 520px; max-height: 92vh; border-radius: 24px 24px 0 0; padding: 20px; overflow-y: auto; border-top: 1px solid var(--border); }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+    .form-group { margin-bottom: 14px; }
+    .form-label { display: block; font-size: 13px; color: var(--text-muted); margin-bottom: 6px; font-weight: 600; }
+    .form-control { width: 100%; background: var(--bg-input); border: 1px solid var(--border); border-radius: 12px; padding: 11px 14px; color: var(--text-main); font-size: 14px; outline: none; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .btn { width: 100%; padding: 13px; border-radius: 14px; border: none; font-size: 15px; font-weight: 700; cursor: pointer; text-align: center; }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-secondary { background: var(--bg-input); color: var(--text-main); border: 1px solid var(--border); }
+    .btn-danger { background: var(--red-bg); color: var(--red-text); border: 1px solid var(--red-border); }
+    .curr-toggle { display: grid; grid-template-columns: 1fr 1fr; background: var(--bg-input); border-radius: 12px; padding: 4px; border: 1px solid var(--border); }
+    .curr-opt { text-align: center; padding: 8px; border-radius: 9px; font-size: 13px; font-weight: 700; cursor: pointer; color: var(--text-muted); }
+    .curr-opt.active { background: var(--primary); color: #fff; }
+    .chart-box { background: var(--bg-card); border: 1px solid var(--border); border-radius: 18px; padding: 16px; margin-bottom: 16px; }
+    .bars-wrap { display: flex; align-items: flex-end; justify-content: space-between; height: 150px; padding-top: 20px; border-bottom: 1px solid var(--border); gap: 4px; }
+    .bar-col { flex: 1; display: flex; flex-direction: column; align-items: center; height: 100%; justify-content: flex-end; cursor: pointer; }
+    .bar-pair { display: flex; gap: 2px; align-items: flex-end; width: 100%; justify-content: center; height: 100%; }
+    .bar-inc { width: 6px; background: var(--green-text); border-radius: 3px 3px 0 0; min-height: 2px; }
+    .bar-exp { width: 6px; background: var(--red-text); border-radius: 3px 3px 0 0; min-height: 2px; }
+    .bar-lbl { font-size: 9px; color: var(--text-muted); margin-top: 6px; writing-mode: vertical-rl; transform: rotate(180deg); height: 38px; }
+    .section { display: none; } .section.active { display: block; }
+    .card-panel { background: var(--bg-card); border: 1px solid var(--border); border-radius: 18px; padding: 16px; margin-bottom: 14px; }
+  </style>
+</head>
+<body>
+  <div id="splash">
+    <div class="logo-box">
+      <svg width="62" height="62" viewBox="0 0 24 24" fill="none" stroke="#1890d5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/>
+        <circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/>
+        <path d="M3 21c4-2 10-2 18 0" stroke-width="1.8"/>
+      </svg>
+    </div>
+    <h2 style="margin-top:16px; font-weight:800; color:#1890d5;">قدرة لتجارة السيارات</h2>
+    <p style="color:#8b9bb4; font-size:13px;">Kadra Car Management</p>
+  </div>
+
+  <div id="pin-screen">
+    <h3 style="margin-bottom:6px;">أدخل الرمز السري (PIN)</h3>
+    <p style="color:var(--text-muted); font-size:13px;">قدرة لتجارة السيارات</p>
+    <div class="pin-dots" id="pin-dots">
+      <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
+    </div>
+    <div class="pin-pad">
+      <button class="pin-btn" onclick="pressPin('1')">1</button>
+      <button class="pin-btn" onclick="pressPin('2')">2</button>
+      <button class="pin-btn" onclick="pressPin('3')">3</button>
+      <button class="pin-btn" onclick="pressPin('4')">4</button>
+      <button class="pin-btn" onclick="pressPin('5')">5</button>
+      <button class="pin-btn" onclick="pressPin('6')">6</button>
+      <button class="pin-btn" onclick="pressPin('7')">7</button>
+      <button class="pin-btn" onclick="pressPin('8')">8</button>
+      <button class="pin-btn" onclick="pressPin('9')">9</button>
+      <button class="pin-btn" style="visibility:hidden"></button>
+      <button class="pin-btn" onclick="pressPin('0')">0</button>
+      <button class="pin-btn" onclick="clearPin()" style="font-size:16px; color:var(--red-text);">مسح</button>
+    </div>
+  </div>
+
+  <div id="sec-cars" class="section active container">
+    <div class="header">
+      <div class="brand">
+        <div class="brand-icon">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2"/>
+            <circle cx="7" cy="17" r="2"/><path d="M9 17h6"/><circle cx="17" cy="17" r="2"/>
+          </svg>
+        </div>
+        <div>
+          <h1>قدرة لتجارة السيارات</h1>
+          <p>Kadra • إدارة وتأجير السيارات</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid-3">
+      <div class="stat-card"><div class="stat-num" id="stat-total">0</div><div class="stat-label">السيارات</div></div>
+      <div class="stat-card"><div class="stat-num" id="stat-rented" style="color:var(--primary)">0</div><div class="stat-label">مؤجرة</div></div>
+      <div class="stat-card"><div class="stat-num" id="stat-avail" style="color:var(--green-text)">0</div><div class="stat-label">متاحة</div></div>
+    </div>
+
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+      <h3 style="font-size:15px;">أرباح الشهر الحالي</h3>
+      <span onclick="switchTab('profits')" style="font-size:12px; color:var(--primary); cursor:pointer;">كل الأشهر ←</span>
+    </div>
+
+    <div class="grid-3">
+      <div class="finance-card f-income"><div class="f-title">الدخل</div><div class="f-val" id="m-inc-usd">$0</div><div class="f-sub" id="m-inc-local">0 ل.س</div></div>
+      <div class="finance-card f-expense"><div class="f-title">المصاريف</div><div class="f-val" id="m-exp-usd">$0</div><div class="f-sub" id="m-exp-local">0 ل.س</div></div>
+      <div class="finance-card f-profit"><div class="f-title">صافي الربح</div><div class="f-val" id="m-prof-usd">$0</div><div class="f-sub" id="m-prof-local">0 ل.س</div></div>
+    </div>
+
+    <input type="text" id="search-input" class="search-box" placeholder="🔍 ابحث باسم السيارة أو اللوحة..." oninput="renderCars()">
+
+    <div class="chips">
+      <div class="chip active" onclick="setFilter('all', this)">الكل</div>
+      <div class="chip" onclick="setFilter('available', this)">متاحة</div>
+      <div class="chip" onclick="setFilter('rented', this)">مؤجرة</div>
+      <div class="chip" onclick="setFilter('maintenance', this)">صيانة</div>
+    </div>
+
+    <div id="cars-list"></div>
+    <button class="fab" onclick="openCarModal()">+ إضافة سيارة</button>
+  </div>
+
+  <div id="sec-car-detail" class="section container">
+    <div class="header">
+      <button class="btn-secondary" style="padding:8px 14px; border-radius:12px; width:auto;" onclick="switchTab('cars')">→ السيارات</button>
+      <div style="display:flex; gap:10px;">
+        <button class="btn-secondary" style="padding:8px 12px; border-radius:12px; width:auto;" onclick="editCurrentCar()">✎ تعديل</button>
+        <button class="btn-danger" style="padding:8px 12px; border-radius:12px; width:auto;" onclick="deleteCurrentCar()">🗑 حذف</button>
+      </div>
+    </div>
+
+    <div class="card-panel">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <h2 id="det-name" style="font-size:20px; font-weight:800;"></h2>
+          <p id="det-meta" style="color:var(--text-muted); font-size:13px; margin-top:4px;"></p>
+        </div>
+        <div id="det-badge"></div>
+      </div>
+      <p id="det-notes" style="font-size:12px; color:var(--text-muted); margin-top:10px;"></p>
+    </div>
+
+    <h3 style="font-size:15px; margin-bottom:10px;">أرباح هذه السيارة</h3>
+    <div class="grid-3">
+      <div class="finance-card f-income"><div class="f-title">الدخل</div><div class="f-val" id="det-inc-usd">$0</div><div class="f-sub" id="det-inc-loc">0 ل.س</div></div>
+      <div class="finance-card f-expense"><div class="f-title">المصاريف</div><div class="f-val" id="det-exp-usd">$0</div><div class="f-sub" id="det-exp-loc">0 ل.س</div></div>
+      <div class="finance-card f-profit"><div class="f-title">صافي الربح</div><div class="f-val" id="det-prof-usd">$0</div><div class="f-sub" id="det-prof-loc">0 ل.س</div></div>
+    </div>
+
+    <div class="card-panel">
+      <p id="det-status-text" style="font-size:13px; color:var(--text-muted); margin-bottom:12px; text-align:center;"></p>
+      <div class="grid-2" id="det-actions"></div>
+    </div>
+
+    <div class="curr-toggle" style="margin-bottom:14px;">
+      <div class="curr-opt active" id="tab-rentals-btn" onclick="switchDetailSub('rentals')">الإيجارات (<span id="cnt-rentals">0</span>)</div>
+      <div class="curr-opt" id="tab-expenses-btn" onclick="switchDetailSub('expenses')">المصاريف (<span id="cnt-expenses">0</span>)</div>
+    </div>
+
+    <div id="sub-rentals">
+      <button class="btn btn-secondary" style="margin-bottom:12px;" onclick="openRentModal()">+ إضافة إيجار</button>
+      <div id="rentals-list"></div>
+    </div>
+
+    <div id="sub-expenses" style="display:none;">
+      <button class="btn btn-secondary" style="margin-bottom:12px;" onclick="openExpenseModal()">+ إضافة مصروف</button>
+      <div id="expenses-list"></div>
+    </div>
+  </div>
+  <div id="sec-profits" class="section container">
+    <h2 style="font-size:20px; font-weight:800; margin-bottom:4px;">الأرباح الشهرية</h2>
+    <p style="font-size:12px; color:var(--text-muted); margin-bottom:16px;">الدخل يُحسب بشهر بداية الإيجار والمصاريف بتاريخها</p>
+
+    <div class="grid-2" style="margin-bottom:14px;">
+      <select id="prof-year" class="form-control" onchange="renderProfits()"></select>
+      <select id="prof-car" class="form-control" onchange="renderProfits()"></select>
+    </div>
+
+    <h3 style="font-size:14px; margin-bottom:10px;" id="prof-year-title">مجموع السنة</h3>
+    <div class="grid-3">
+      <div class="finance-card f-income"><div class="f-title">الدخل</div><div class="f-val" id="y-inc">$0</div></div>
+      <div class="finance-card f-expense"><div class="f-title">المصاريف</div><div class="f-val" id="y-exp">$0</div></div>
+      <div class="finance-card f-profit"><div class="f-title">صافي الربح</div><div class="f-val" id="y-prof">$0</div></div>
+    </div>
+
+    <div class="chart-box">
+      <div class="curr-toggle" style="margin-bottom:10px;">
+        <div class="curr-opt active" id="p-curr-usd" onclick="setProfitCurrency('USD')">دولار $</div>
+        <div class="curr-opt" id="p-curr-loc" onclick="setProfitCurrency('LOCAL')">ل.س</div>
+      </div>
+      <div id="chart-tooltip" style="background:var(--bg-input); padding:10px; border-radius:12px; font-size:12px; margin-bottom:8px; display:none; justify-content:space-between;"></div>
+      <div class="bars-wrap" id="bars-wrap"></div>
+    </div>
+
+    <div id="months-breakdown"></div>
+  </div>
+
+  <div id="sec-settings" class="section container">
+    <h2 style="font-size:20px; font-weight:800; margin-bottom:16px;">الإعدادات</h2>
+
+    <div class="card-panel">
+      <h3 style="font-size:15px; margin-bottom:6px;">🪙 العملة المحلية</h3>
+      <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">التطبيق يحسب بالدولار وبالعملة المحلية كُلٌّ على حدة.</p>
+      <div style="display:flex; gap:10px;">
+        <input type="text" id="set-curr-name" class="form-control" value="ل.س">
+        <button class="btn btn-primary" style="width:100px;" onclick="saveCurrency()">حفظ</button>
+      </div>
+    </div>
+
+    <div class="card-panel">
+      <h3 style="font-size:15px; margin-bottom:6px;">🔒 الرمز السري (PIN)</h3>
+      <p id="pin-status-txt" style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">غير مفعّل — التطبيق يفتح بدون رمز.</p>
+      <button class="btn btn-secondary" id="pin-action-btn" onclick="togglePinSetup()">تفعيل الرمز</button>
+    </div>
+
+    <div class="card-panel">
+      <h3 style="font-size:15px; margin-bottom:6px;">📲 نقل البيانات إلى جوال آخر (نسخ احتياطي)</h3>
+      <p style="font-size:12px; color:var(--text-muted); margin-bottom:12px;">احفظ نسخة من سياراتك وحساباتك لإرسالها عبر واتساب وفتحها على أي جوال آخر.</p>
+      <div class="grid-2">
+        <button class="btn btn-primary" onclick="exportBackup()">تصدير نسخة</button>
+        <button class="btn btn-secondary" onclick="document.getElementById('import-file').click()">استيراد نسخة</button>
+        <input type="file" id="import-file" accept=".json" style="display:none;" onchange="importBackup(event)">
+      </div>
+    </div>
+
+    <div class="card-panel">
+      <h3 style="font-size:15px; margin-bottom:6px;">📥 تثبيت التطبيق على الشاشة</h3>
+      <p style="font-size:12px; color:var(--text-muted); line-height:1.6;">
+        لتثبيت <b>قدرة لتجارة السيارات</b> كتطبيق مستقل على جوالك: اضغط على قائمة المتصفح (⋮ أو زر المشاركة) ثم اختر <b>"إضافة إلى الشاشة الرئيسية" (Add to Home Screen)</b>.
+      </p>
+    </div>
+
+    <p style="text-align:center; font-size:12px; color:var(--text-muted); margin-top:20px;">قدرة لتجارة السيارات (Kadra) • يعمل بدون إنترنت</p>
+  </div>
+
+  <div id="modal-car" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modal-car-title">إضافة سيارة</h3>
+        <span onclick="closeModal('modal-car')" style="font-size:22px; cursor:pointer; color:var(--text-muted);">✕</span>
+      </div>
+      <input type="hidden" id="car-id">
+      <div class="form-group"><label class="form-label">اسم السيارة *</label><input type="text" id="car-name" class="form-control" placeholder="مثلاً: كيا سيراتو / النترا"></div>
+      <div class="grid-2">
+        <div class="form-group"><label class="form-label">الموديل</label><input type="text" id="car-model" class="form-control" placeholder="2024"></div>
+        <div class="form-group"><label class="form-label">اللون</label><input type="text" id="car-color" class="form-control" placeholder="أبيض"></div>
+      </div>
+      <div class="form-group"><label class="form-label">رقم اللوحة</label><input type="text" id="car-plate" class="form-control" placeholder="6575757"></div>
+      <div class="form-group"><label class="form-label">ملاحظات</label><input type="text" id="car-notes" class="form-control" placeholder="أي تفاصيل إضافية..."></div>
+      <button class="btn btn-primary" onclick="saveCar()">حفظ السيارة</button>
+    </div>
+  </div>
+
+  <div id="modal-rent" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>تأجير السيارة</h3>
+        <span onclick="closeModal('modal-rent')" style="font-size:22px; cursor:pointer; color:var(--text-muted);">✕</span>
+      </div>
+      <div class="form-group"><label class="form-label">اسم المستأجر *</label><input type="text" id="rent-customer" class="form-control" placeholder="الاسم الكامل"></div>
+      <div class="form-group"><label class="form-label">رقم الهاتف</label><input type="tel" id="rent-phone" class="form-control" placeholder="09xxxxxxxx"></div>
+      <div class="grid-2">
+        <div class="form-group"><label class="form-label">تاريخ التسليم</label><input type="date" id="rent-start" class="form-control" onchange="calcDays()"></div>
+        <div class="form-group"><label class="form-label">تاريخ الاستلام</label><input type="date" id="rent-end" class="form-control" onchange="calcDays()"></div>
+      </div>
+      <p id="rent-days-lbl" style="font-size:12px; color:var(--primary); margin-bottom:12px; font-weight:700;">مدة الإيجار: 1 يوم</p>
+      <div class="form-group"><label class="form-label">السعر الإجمالي *</label><input type="number" id="rent-price" class="form-control" placeholder="0"></div>
+      <div class="form-group">
+        <label class="form-label">العملة</label>
+        <div class="curr-toggle">
+          <div class="curr-opt active" id="r-curr-usd" onclick="setFormCurr('rent', 'USD')">دولار $</div>
+          <div class="curr-opt" id="r-curr-loc" onclick="setFormCurr('rent', 'LOCAL')">ل.س</div>
+        </div>
+      </div>
+      <div class="form-group"><label class="form-label">تفاصيل جانبية</label><input type="text" id="rent-notes" class="form-control" placeholder="عربون، كفالة، كيلومترات..."></div>
+      <button class="btn btn-primary" onclick="saveRental()">تأكيد الإيجار</button>
+    </div>
+  </div>
+
+  <div id="modal-expense" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>إضافة مصروف</h3>
+        <span onclick="closeModal('modal-expense')" style="font-size:22px; cursor:pointer; color:var(--text-muted);">✕</span>
+      </div>
+      <div class="form-group"><label class="form-label">بيان المصروف *</label><input type="text" id="exp-title" class="form-control" placeholder="تبديل زيت، صيانة، غسيل..."></div>
+      <div class="form-group"><label class="form-label">التاريخ</label><input type="date" id="exp-date" class="form-control"></div>
+      <div class="form-group"><label class="form-label">المبلغ *</label><input type="number" id="exp-amount" class="form-control" placeholder="0"></div>
+      <div class="form-group">
+        <label class="form-label">العملة</label>
+        <div class="curr-toggle">
+          <div class="curr-opt active" id="e-curr-usd" onclick="setFormCurr('exp', 'USD')">دولار $</div>
+          <div class="curr-opt" id="e-curr-loc" onclick="setFormCurr('exp', 'LOCAL')">ل.س</div>
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="saveExpense()">حفظ المصروف</button>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <div class="nav-item active" id="nav-cars" onclick="switchTab('cars')"><span>🚗</span><span>السيارات</span></div>
+    <div class="nav-item" id="nav-profits" onclick="switchTab('profits')"><span>📊</span><span>الأرباح</span></div>
+    <div class="nav-item" id="nav-settings" onclick="switchTab('settings')"><span>⚙️</span><span>الإعدادات</span></div>
+  </div>
+<script>
+  const MONTHS_AR = ['كانون الثاني', 'شباط', 'آذار', 'نيسان', 'أيار', 'حزيران', 'تموز', 'آب', 'أيلول', 'تشرين الأول', 'تشرين الثاني', 'كانون الأول'];
+  const MONTHS_SHORT = ['كانون', 'شباط', 'آذار', 'نيسان', 'أيار', 'حزيران', 'تموز', 'آب', 'أيلول', 'تشرين', 'تشرين', 'كانون'];
+
+  let db = JSON.parse(localStorage.getItem('kadra_car_db')) || {
+    cars: [], rentals: [], expenses: [], settings: { currency: 'ل.س', pin: '' }
+  };
+  let currentFilter = 'all', currentCarId = null, rentCurrency = 'USD', expCurrency = 'USD', profitCurrency = 'USD', pinBuffer = '';
+
+  function saveDB() { localStorage.setItem('kadra_car_db', JSON.stringify(db)); }
+  function todayStr() { return new Date().toISOString().split('T')[0]; }
+
+  window.onload = () => {
+    setTimeout(() => {
+      const sp = document.getElementById('splash');
+      sp.style.opacity = '0';
+      setTimeout(() => sp.style.display = 'none', 400);
+    }, 800);
+    if (db.settings.pin) document.getElementById('pin-screen').style.display = 'flex';
+    updateSettingsUI();
+    renderCars();
+  };
+
+  function pressPin(d) {
+    if (pinBuffer.length < 4) {
+      pinBuffer += d;
+      updatePinDots();
+      if (pinBuffer.length === 4) {
+        if (pinBuffer === db.settings.pin) { document.getElementById('pin-screen').style.display = 'none'; pinBuffer = ''; }
+        else { alert('الرمز السري غير صحيح'); pinBuffer = ''; updatePinDots(); }
+      }
+    }
+  }
+  function clearPin() { pinBuffer = ''; updatePinDots(); }
+  function updatePinDots() { document.querySelectorAll('.pin-dot').forEach((dot, i) => dot.classList.toggle('filled', i < pinBuffer.length)); }
+
+  function switchTab(tab) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    if (tab === 'cars') { document.getElementById('sec-cars').classList.add('active'); document.getElementById('nav-cars').classList.add('active'); renderCars(); }
+    else if (tab === 'profits') { document.getElementById('sec-profits').classList.add('active'); document.getElementById('nav-profits').classList.add('active'); initProfitsFilters(); renderProfits(); }
+    else if (tab === 'settings') { document.getElementById('sec-settings').classList.add('active'); document.getElementById('nav-settings').classList.add('active'); }
+    else if (tab === 'detail') { document.getElementById('sec-car-detail').classList.add('active'); document.getElementById('nav-cars').classList.add('active'); }
+  }
+
+  function formatMoney(val, curr) {
+    const num = Number(val || 0).toLocaleString('en-US');
+    return curr === 'USD' ? `$${num}` : `${num} ${db.settings.currency}`;
+  }
+
+  function setFilter(f, el) {
+    currentFilter = f;
+    document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+    renderCars();
+  }
+  function renderCars() {
+    document.getElementById('stat-total').textContent = db.cars.length;
+    document.getElementById('stat-rented').textContent = db.cars.filter(c => c.status === 'rented').length;
+    document.getElementById('stat-avail').textContent = db.cars.filter(c => c.status === 'available').length;
+
+    const ym = todayStr().slice(0, 7);
+    let mIncU = 0, mIncL = 0, mExpU = 0, mExpL = 0;
+    db.rentals.filter(r => r.start.startsWith(ym)).forEach(r => r.currency === 'USD' ? mIncU += Number(r.price) : mIncL += Number(r.price));
+    db.expenses.filter(e => e.date.startsWith(ym)).forEach(e => e.currency === 'USD' ? mExpU += Number(e.amount) : mExpL += Number(e.amount));
+
+    document.getElementById('m-inc-usd').textContent = formatMoney(mIncU, 'USD');
+    document.getElementById('m-inc-local').textContent = formatMoney(mIncL, 'LOCAL');
+    document.getElementById('m-exp-usd').textContent = formatMoney(mExpU, 'USD');
+    document.getElementById('m-exp-local').textContent = formatMoney(mExpL, 'LOCAL');
+    document.getElementById('m-prof-usd').textContent = formatMoney(mIncU - mExpU, 'USD');
+    document.getElementById('m-prof-local').textContent = formatMoney(mIncL - mExpL, 'LOCAL');
+
+    const q = document.getElementById('search-input').value.trim().toLowerCase();
+    const list = document.getElementById('cars-list');
+    list.innerHTML = '';
+
+    const filtered = db.cars.filter(c => (currentFilter === 'all' || c.status === currentFilter) && (!q || c.name.toLowerCase().includes(q) || (c.plate && c.plate.toLowerCase().includes(q))));
+    if (!filtered.length) { list.innerHTML = `<p style="text-align:center; color:var(--text-muted); padding:30px 0;">لا توجد سيارات مطابقة</p>`; return; }
+
+    filtered.forEach(car => {
+      const cIncU = db.rentals.filter(r => r.carId === car.id && r.currency === 'USD').reduce((s, r) => s + Number(r.price), 0);
+      const cExpU = db.expenses.filter(e => e.carId === car.id && e.currency === 'USD').reduce((s, e) => s + Number(e.amount), 0);
+      const badgeHtml = car.status === 'available' ? `<span class="badge badge-avail">● متاحة</span>` : car.status === 'rented' ? `<span class="badge badge-rented">● مؤجرة</span>` : `<span class="badge badge-maint">● صيانة</span>`;
+      list.innerHTML += `<div class="car-card" onclick="openCarDetail('${car.id}')"><div class="car-info"><div class="car-thumb">🚘</div><div><div class="car-title">${car.name}</div><div class="car-meta">${car.plate || 'بدون لوحة'} • ${car.model || ''} ${car.color ? '• ' + car.color : ''}</div><div style="font-size:12px; color:var(--primary); font-weight:700;">صافي الربح: ${formatMoney(cIncU - cExpU, 'USD')}</div></div></div>${badgeHtml}</div>`;
+    });
+  }
+
+  function openCarModal(car = null) {
+    document.getElementById('modal-car-title').textContent = car ? 'تعديل السيارة' : 'إضافة سيارة';
+    document.getElementById('car-id').value = car ? car.id : '';
+    document.getElementById('car-name').value = car ? car.name : '';
+    document.getElementById('car-model').value = car ? car.model : '';
+    document.getElementById('car-color').value = car ? car.color : '';
+    document.getElementById('car-plate').value = car ? car.plate : '';
+    document.getElementById('car-notes').value = car ? car.notes : '';
+    document.getElementById('modal-car').classList.add('open');
+  }
+
+  function saveCar() {
+    const name = document.getElementById('car-name').value.trim();
+    if (!name) return alert('يرجى إدخال اسم السيارة');
+    const id = document.getElementById('car-id').value;
+    const data = { name, model: document.getElementById('car-model').value.trim(), color: document.getElementById('car-color').value.trim(), plate: document.getElementById('car-plate').value.trim(), notes: document.getElementById('car-notes').value.trim() };
+    if (id) {
+      const idx = db.cars.findIndex(c => c.id === id);
+      db.cars[idx] = { ...db.cars[idx], ...data };
+      saveDB(); closeModal('modal-car'); openCarDetail(id);
+    } else {
+      db.cars.push({ id: 'car_' + Date.now(), status: 'available', ...data });
+      saveDB(); closeModal('modal-car'); renderCars();
+    }
+  }
+  function openCarDetail(id) {
+    currentCarId = id;
+    const car = db.cars.find(c => c.id === id);
+    if (!car) return switchTab('cars');
+    document.getElementById('det-name').textContent = car.name;
+    document.getElementById('det-meta').textContent = `${car.plate || 'بدون لوحة'} • ${car.model || ''} ${car.color ? '• ' + car.color : ''}`;
+    document.getElementById('det-notes').textContent = car.notes || '';
+
+    const badge = document.getElementById('det-badge'), stText = document.getElementById('det-status-text'), actBox = document.getElementById('det-actions');
+    if (car.status === 'available') {
+      badge.innerHTML = `<span class="badge badge-avail">● متاحة</span>`; stText.textContent = 'السيارة متاحة وجاهزة للتأجير حالياً';
+      actBox.innerHTML = `<button class="btn btn-primary" onclick="openRentModal()">🔑 تأجير</button><button class="btn btn-secondary" onclick="changeCarStatus('maintenance')">🔧 وضع صيانة</button>`;
+    } else if (car.status === 'rented') {
+      badge.innerHTML = `<span class="badge badge-rented">● مؤجرة</span>`; stText.textContent = 'السيارة مؤجرة حالياً لزبون';
+      actBox.innerHTML = `<button class="btn btn-primary" style="background:var(--green-text);" onclick="changeCarStatus('available')">✓ استلام السيارة</button><button class="btn btn-secondary" onclick="changeCarStatus('maintenance')">🔧 وضع صيانة</button>`;
+    } else {
+      badge.innerHTML = `<span class="badge badge-maint">● صيانة</span>`; stText.textContent = 'السيارة في الصيانة حالياً';
+      actBox.innerHTML = `<button class="btn btn-primary" onclick="changeCarStatus('available')">✓ جاهزة ومتاحة</button><button class="btn btn-secondary" onclick="openRentModal()">🔑 تأجير</button>`;
+    }
+
+    const rentals = db.rentals.filter(r => r.carId === id).reverse();
+    const expenses = db.expenses.filter(e => e.carId === id).reverse();
+    let incU = 0, incL = 0, expU = 0, expL = 0;
+    rentals.forEach(r => r.currency === 'USD' ? incU += Number(r.price) : incL += Number(r.price));
+    expenses.forEach(e => e.currency === 'USD' ? expU += Number(e.amount) : expL += Number(e.amount));
+
+    document.getElementById('det-inc-usd').textContent = formatMoney(incU, 'USD'); document.getElementById('det-inc-loc').textContent = formatMoney(incL, 'LOCAL');
+    document.getElementById('det-exp-usd').textContent = formatMoney(expU, 'USD'); document.getElementById('det-exp-loc').textContent = formatMoney(expL, 'LOCAL');
+    document.getElementById('det-prof-usd').textContent = formatMoney(incU - expU, 'USD'); document.getElementById('det-prof-loc').textContent = formatMoney(incL - expL, 'LOCAL');
+    document.getElementById('cnt-rentals').textContent = rentals.length; document.getElementById('cnt-expenses').textContent = expenses.length;
+
+    const rList = document.getElementById('rentals-list');
+    rList.innerHTML = rentals.length ? '' : '<p style="text-align:center; color:var(--text-muted); padding:20px;">لا توجد إيجارات مسجلة</p>';
+    rentals.forEach(r => {
+      rList.innerHTML += `<div class="card-panel" style="padding:12px;"><div style="display:flex; justify-content:space-between;"><strong>${r.customer} ${r.phone ? '(' + r.phone + ')' : ''}</strong><strong style="color:var(--green-text); direction:ltr;">${formatMoney(r.price, r.currency)}</strong></div><div style="font-size:12px; color:var(--text-muted); margin-top:4px;">من ${r.start} إلى ${r.end}</div>${r.notes ? `<div style="font-size:12px; color:var(--text-muted); margin-top:4px;">ملاحظات: ${r.notes}</div>` : ''}<div style="text-align:left; margin-top:6px;"><span onclick="deleteRecord('rentals','${r.id}')" style="color:var(--red-text); font-size:12px; cursor:pointer;">حذف</span></div></div>`;
+    });
+
+    const eList = document.getElementById('expenses-list');
+    eList.innerHTML = expenses.length ? '' : '<p style="text-align:center; color:var(--text-muted); padding:20px;">لا توجد مصاريف مسجلة</p>';
+    expenses.forEach(e => {
+      eList.innerHTML += `<div class="card-panel" style="padding:12px;"><div style="display:flex; justify-content:space-between;"><strong>${e.title}</strong><strong style="color:var(--red-text); direction:ltr;">-${formatMoney(e.amount, e.currency)}</strong></div><div style="display:flex; justify-content:space-between; font-size:12px; color:var(--text-muted); margin-top:4px;"><span>${e.date}</span><span onclick="deleteRecord('expenses','${e.id}')" style="color:var(--red-text); cursor:pointer;">حذف</span></div></div>`;
+    });
+    switchTab('detail');
+  }
+  function changeCarStatus(st) { const car = db.cars.find(c => c.id === currentCarId); if (car) { car.status = st; saveDB(); openCarDetail(currentCarId); } }
+  function editCurrentCar() { const car = db.cars.find(c => c.id === currentCarId); if (car) openCarModal(car); }
+  function deleteCurrentCar() { if (confirm('حذف السيارة وجميع سجلاتها؟')) { db.cars = db.cars.filter(c => c.id !== currentCarId); db.rentals = db.rentals.filter(r => r.carId !== currentCarId); db.expenses = db.expenses.filter(e => e.carId !== currentCarId); saveDB(); switchTab('cars'); } }
+  function deleteRecord(type, id) { if (confirm('حذف هذا السجل؟')) { db[type] = db[type].filter(item => item.id !== id); saveDB(); openCarDetail(currentCarId); } }
+  function switchDetailSub(sub) {
+    document.getElementById('sub-rentals').style.display = sub === 'rentals' ? 'block' : 'none';
+    document.getElementById('sub-expenses').style.display = sub === 'expenses' ? 'block' : 'none';
+    document.getElementById('tab-rentals-btn').classList.toggle('active', sub === 'rentals');
+    document.getElementById('tab-expenses-btn').classList.toggle('active', sub === 'expenses');
+  }
+  function setFormCurr(form, curr) {
+    if (form === 'rent') { rentCurrency = curr; document.getElementById('r-curr-usd').classList.toggle('active', curr === 'USD'); document.getElementById('r-curr-loc').classList.toggle('active', curr === 'LOCAL'); }
+    else { expCurrency = curr; document.getElementById('e-curr-usd').classList.toggle('active', curr === 'USD'); document.getElementById('e-curr-loc').classList.toggle('active', curr === 'LOCAL'); }
+  }
+  function openRentModal() {
+    document.getElementById('rent-customer').value = ''; document.getElementById('rent-phone').value = '';
+    document.getElementById('rent-start').value = todayStr(); document.getElementById('rent-end').value = todayStr();
+    document.getElementById('rent-price').value = ''; document.getElementById('rent-notes').value = '';
+    calcDays(); document.getElementById('modal-rent').classList.add('open');
+  }
+  function calcDays() {
+    const s = new Date(document.getElementById('rent-start').value), e = new Date(document.getElementById('rent-end').value);
+    document.getElementById('rent-days-lbl').textContent = `مدة الإيجار: ${Math.max(1, Math.round((e - s) / 86400000))} يوم`;
+  }
+  function saveRental() {
+    const customer = document.getElementById('rent-customer').value.trim(), price = document.getElementById('rent-price').value;
+    if (!customer || !price) return alert('يرجى إدخال اسم المستأجر والسعر');
+    db.rentals.push({ id: 'rent_' + Date.now(), carId: currentCarId, customer, phone: document.getElementById('rent-phone').value.trim(), start: document.getElementById('rent-start').value, end: document.getElementById('rent-end').value, price: Number(price), currency: rentCurrency, notes: document.getElementById('rent-notes').value.trim() });
+    const car = db.cars.find(c => c.id === currentCarId); if (car) car.status = 'rented';
+    saveDB(); closeModal('modal-rent'); openCarDetail(currentCarId);
+  }
+  function openExpenseModal() {
+    document.getElementById('exp-title').value = ''; document.getElementById('exp-date').value = todayStr(); document.getElementById('exp-amount').value = '';
+    document.getElementById('modal-expense').classList.add('open');
+  }
+  function saveExpense() {
+    const title = document.getElementById('exp-title').value.trim(), amount = document.getElementById('exp-amount').value;
+    if (!title || !amount) return alert('يرجى إدخال البيان والمبلغ');
+    db.expenses.push({ id: 'exp_' + Date.now(), carId: currentCarId, title, date: document.getElementById('exp-date').value, amount: Number(amount), currency: expCurrency });
+    saveDB(); closeModal('modal-expense'); openCarDetail(currentCarId);
+  }
+  function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+  function initProfitsFilters() {
+    const ySel = document.getElementById('prof-year'), curY = new Date().getFullYear();
+    ySel.innerHTML = '';
+    for (let y = curY - 1; y <= curY + 2; y++) ySel.innerHTML += `<option value="${y}" ${y === curY ? 'selected' : ''}>${y}</option>`;
+    const cSel = document.getElementById('prof-car');
+    cSel.innerHTML = `<option value="all">كل السيارات</option>`;
+    db.cars.forEach(c => cSel.innerHTML += `<option value="${c.id}">${c.name}</option>`);
+  }
+  function setProfitCurrency(curr) {
+    profitCurrency = curr;
+    document.getElementById('p-curr-usd').classList.toggle('active', curr === 'USD');
+    document.getElementById('p-curr-loc').classList.toggle('active', curr === 'LOCAL');
+    document.getElementById('p-curr-loc').textContent = db.settings.currency;
+    renderProfits();
+  }
+  function renderProfits() {
+    const year = document.getElementById('prof-year').value, carId = document.getElementById('prof-car').value;
+    document.getElementById('prof-year-title').textContent = `مجموع سنة ${year}`;
+    let yInc = 0, yExp = 0;
+    const mData = Array.from({ length: 12 }, () => ({ inc: 0, exp: 0 }));
+    db.rentals.forEach(r => { if (r.start.startsWith(year) && r.currency === profitCurrency && (carId === 'all' || r.carId === carId)) { const m = parseInt(r.start.split('-')[1], 10) - 1; mData[m].inc += Number(r.price); yInc += Number(r.price); } });
+    db.expenses.forEach(e => { if (e.date.startsWith(year) && e.currency === profitCurrency && (carId === 'all' || e.carId === carId)) { const m = parseInt(e.date.split('-')[1], 10) - 1; mData[m].exp += Number(e.amount); yExp += Number(e.amount); } });
+    document.getElementById('y-inc').textContent = formatMoney(yInc, profitCurrency);
+    document.getElementById('y-exp').textContent = formatMoney(yExp, profitCurrency);
+    document.getElementById('y-prof').textContent = formatMoney(yInc - yExp, profitCurrency);
+    const maxVal = Math.max(1, ...mData.map(d => Math.max(d.inc, d.exp)));
+    const barsWrap = document.getElementById('bars-wrap'), listWrap = document.getElementById('months-breakdown');
+    barsWrap.innerHTML = ''; listWrap.innerHTML = '';
+    mData.forEach((d, idx) => {
+      barsWrap.innerHTML += `<div class="bar-col" onclick="showTooltip(${idx}, ${d.inc}, ${d.exp})"><div class="bar-pair"><div class="bar-inc" style="height:${Math.round((d.inc / maxVal) * 110)}px"></div><div class="bar-exp" style="height:${Math.round((d.exp / maxVal) * 110)}px"></div></div><div class="bar-lbl">${MONTHS_SHORT[idx]}</div></div>`;
+      const prof = d.inc - d.exp, hasMove = d.inc > 0 || d.exp > 0;
+      listWrap.innerHTML += `<div class="card-panel" style="padding:12px 16px; display:flex; justify-content:space-between; align-items:center;"><div><strong>${MONTHS_AR[idx]}</strong><div style="font-size:12px; color:var(--text-muted);">${hasMove ? `الدخل: ${formatMoney(d.inc, profitCurrency)} | المصاريف: ${formatMoney(d.exp, profitCurrency)}` : 'لا توجد حركة'}</div></div><strong style="color:${prof >= 0 ? 'var(--primary)' : 'var(--red-text)'}; direction:ltr;">${formatMoney(prof, profitCurrency)}</strong></div>`;
+    });
+  }
+  function showTooltip(idx, inc, exp) { const tip = document.getElementById('chart-tooltip'); tip.style.display = 'flex'; tip.innerHTML = `<strong>${MONTHS_AR[idx]}</strong><span style="color:var(--green-text)">الدخل: ${formatMoney(inc, profitCurrency)}</span><span style="color:var(--red-text)">المصاريف: ${formatMoney(exp, profitCurrency)}</span>`; }
+  function updateSettingsUI() {
+    document.getElementById('set-curr-name').value = db.settings.currency;
+    document.getElementById('r-curr-loc').textContent = db.settings.currency;
+    document.getElementById('e-curr-loc').textContent = db.settings.currency;
+    document.getElementById('p-curr-loc').textContent = db.settings.currency;
+    document.getElementById('pin-status-txt').textContent = db.settings.pin ? 'مفعّل — التطبيق محمي برمز سري مكون من 4 أرقام.' : 'غير مفعّل — التطبيق يفتح بدون رمز.';
+    document.getElementById('pin-action-btn').textContent = db.settings.pin ? 'إلغاء الرمز السري' : 'تفعيل الرمز';
+  }
+  function saveCurrency() { const val = document.getElementById('set-curr-name').value.trim(); if (val) { db.settings.currency = val; saveDB(); updateSettingsUI(); alert('تم حفظ اسم العملة بنجاح'); } }
+  function togglePinSetup() {
+    if (db.settings.pin) { if (confirm('إلغاء قفل الرمز السري؟')) { db.settings.pin = ''; saveDB(); updateSettingsUI(); } }
+    else { const p = prompt('أدخل رمزاً سرياً جديداً من 4 أرقام:'); if (p && /^\d{4}$/.test(p)) { db.settings.pin = p; saveDB(); updateSettingsUI(); alert('تم تفعيل الرمز السري'); } else if (p) alert('يرجى إدخال 4 أرقام فقط'); }
+  }
+  function exportBackup() { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(db)], { type: 'application/json' })); a.download = `kadra-backup-${todayStr()}.json`; a.click(); }
+  function importBackup(e) {
+    const file = e.target.files[0]; if (!file) return;
+    const reader = new FileReader();
+    reader.onload = ev => { try { const imported = JSON.parse(ev.target.result); if (imported.cars && imported.rentals) { db = imported; saveDB(); updateSettingsUI(); alert('تم استرجاع البيانات بنجاح!'); switchTab('cars'); } } catch { alert('ملف غير صالح'); } };
+    reader.readAsText(file);
+  }
+</script>
+</body>
+</html>
